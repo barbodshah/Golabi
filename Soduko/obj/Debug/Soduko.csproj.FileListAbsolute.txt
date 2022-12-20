@@ -1,0 +1,7 @@
+E:\GitHub\Golabi\Soduko\bin\Debug\Soduko.exe.config
+E:\GitHub\Golabi\Soduko\bin\Debug\Soduko.exe
+E:\GitHub\Golabi\Soduko\bin\Debug\Soduko.pdb
+E:\GitHub\Golabi\Soduko\obj\Debug\Soduko.csprojAssemblyReference.cache
+E:\GitHub\Golabi\Soduko\obj\Debug\Soduko.csproj.CoreCompileInputs.cache
+E:\GitHub\Golabi\Soduko\obj\Debug\Soduko.exe
+E:\GitHub\Golabi\Soduko\obj\Debug\Soduko.pdb
