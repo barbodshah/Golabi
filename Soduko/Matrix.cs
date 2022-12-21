@@ -34,7 +34,7 @@ namespace Soduko
                 //Console.Write("Enter " + (i + 1) + "th condition: ");
                 conditions[i] = conditionFromString(Console.ReadLine());
 
-                /*if (conditions[i].operation == '=')
+                if (conditions[i].operation == '=')
                 {
                     int index = conditions[i].numbers[0];
 
@@ -42,7 +42,7 @@ namespace Soduko
                     int y = index / n;
 
                     matrix[y, x] = conditions[i].answer;
-                }*/
+                }
             }
             Console.WriteLine("Got Conditions");
 
@@ -168,7 +168,7 @@ namespace Soduko
         {
             int index = 0;
 
-            while(index < n * n)
+            while (index <= n * n)
             {
                 for (int i = index + 1; i < n * n; i++)
                 {
@@ -178,12 +178,37 @@ namespace Soduko
                 int x = index % n;
                 int y = index / n;
 
-                if (matrix[y, x] == 0)
+                if (index != n * n)
                 {
-                    int number = GenerateNumber(y, x, backTrancker[index]);
-                    Console.WriteLine(index);
+                    if (matrix[y, x] == 0)
+                    {
+                        int number = GenerateNumber(y, x, backTrancker[index]);
+                        Console.WriteLine(index);
 
-                    if (number == 0)
+                        if (number == 0 || validateMatrix() == false)
+                        {
+                            index--;
+                            //backTrancker[index]++;
+
+                            matrix[index / n, index % n] = 0;
+                        }
+                        else
+                        {
+                            matrix[y, x] = number;
+
+                            backTrancker[index]++;
+                            index++;
+                        }
+                    }
+                    else
+                    {
+                        backTrancker[index]++;
+                        index++;
+                    }
+                }
+                else
+                {
+                    if(validateMatrix() == false)
                     {
                         index--;
                         //backTrancker[index]++;
@@ -192,33 +217,16 @@ namespace Soduko
                     }
                     else
                     {
-                        if (validateMatrix())
-                        {
-                            matrix[y, x] = number;
-                            backTrancker[index]++;
-                            index++;
-                        }
-                        else
-                        {
-                            index--;
-                            //backTrancker[index]++;
-
-                            matrix[index / n, index % n] = 0;
-                        }
+                        break;
                     }
                 }
-                else
-                {
-                    backTrancker[index]++;
-                    index++;
-                }
                 ShowMatrix();
-                for(int i = 0; i < n * n; i++)
+                for (int i = 0; i < n * n; i++)
                 {
                     Console.Write(" " + backTrancker[i]);
                 }
                 Console.Write("\n");
-                //Console.ReadKey();
+                Console.ReadKey();
             }
         }
         int GenerateNumber(int i, int j, int p)
