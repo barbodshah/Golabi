@@ -11,6 +11,7 @@ namespace Soduko
         int[,] matrix;
         int n, k;
         Condition[] conditions;
+        int[] backTrancker;
 
         public void Awake()
         {
@@ -20,6 +21,7 @@ namespace Soduko
             n = Convert.ToInt32(Console.ReadLine());
 
             matrix = new int[n, n];
+            backTrancker = new int[n * n];
 
             Console.Write("Enter K: ");
             k = Convert.ToInt32(Console.ReadLine());
@@ -32,7 +34,7 @@ namespace Soduko
                 //Console.Write("Enter " + (i + 1) + "th condition: ");
                 conditions[i] = conditionFromString(Console.ReadLine());
 
-                /*if(conditions[i].operation == '=')
+                /*if (conditions[i].operation == '=')
                 {
                     int index = conditions[i].numbers[0];
 
@@ -44,52 +46,110 @@ namespace Soduko
             }
             Console.WriteLine("Got Conditions");
 
-            //ShowMatrix();
-
-            while (validateMatrix() == false)
-            {
-                Console.WriteLine("Generating Matrix");
-                GenerateMatrix();
-            }
+            GenerateMatrix();
             ShowMatrix();
+
             Console.ReadKey();
         }
         bool validateMatrix()
         {
+            //Validate the matrix for conditions if the needed cells are filled
             for (int i = 0; i < conditions.Length; i++)
             {
-                if (conditions[i].operation == '=')
-                {
-                    if (getNumber(conditions[i].numbers[0]) != conditions[i].answer)
-                    {
-                        return false;
-                    }
-                }
-                else if (conditions[i].operation == '+')
-                {
-                    int sum = 0;
+                bool filledNumbers = true;
 
-                    for (int j = 0; j < conditions[i].numbers.Length; j++)
-                    {
-                        sum += getNumber(conditions[i].numbers[j]);
-                    }
-                    if (sum != conditions[i].answer) return false;
-                }
-                else if (conditions[i].operation == '*')
+                for (int j = 0; j < conditions[i].numbers.Length; j++)
                 {
-                    int multiplication = 1;
+                    if (getNumber(conditions[i].numbers[j]) == 0)
+                    {
+                        Console.WriteLine("Condition " + i + " not filled");
 
-                    for (int j = 0; j < conditions[i].numbers.Length; j++)
-                    {
-                        multiplication *= getNumber(conditions[i].numbers[j]);
+                        filledNumbers = false;
+                        break;
                     }
-                    if (multiplication != conditions[i].answer) return false;
                 }
-                else if (conditions[i].operation == '-')
+                if (filledNumbers)
                 {
-                    int resault = getNumber(conditions[i].numbers[0]) - getNumber(conditions[i].numbers[1]);
-                    if (resault < 0) resault = -resault;
-                    if (resault != conditions[i].answer) return false;
+                    if (conditions[i].operation == '+')
+                    {
+                        int sum = 0;
+
+                        for (int j = 0; j < conditions[i].numbers.Length; j++)
+                        {
+                            sum += getNumber(conditions[i].numbers[j]);
+                        }
+                        if (sum != conditions[i].answer)
+                        {
+                            Console.WriteLine("Condition " + i + " invalid");
+                            return false;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Condition " + i + " valid");
+                        }
+                    }
+                    else if (conditions[i].operation == '*')
+                    {
+                        int multiplication = 1;
+
+                        for (int j = 0; j < conditions[i].numbers.Length; j++)
+                        {
+                            multiplication *= getNumber(conditions[i].numbers[j]);
+                        }
+                        if (multiplication != conditions[i].answer)
+                        {
+                            Console.WriteLine("Condition " + i + " invalid");
+                            return false;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Condition " + i + " valid");
+                        }
+                    }
+                    else if (conditions[i].operation == '-')
+                    {
+                        int resault = getNumber(conditions[i].numbers[0]) - getNumber(conditions[i].numbers[1]);
+                        if (resault < 0) resault = -resault;
+
+                        if (resault != conditions[i].answer)
+                        {
+                            Console.WriteLine("Condition " + i + " invalid");
+                            return false;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Condition " + i + " valid");
+                        }
+                    }
+                    else if(conditions[i].operation == '/')
+                    {
+                        int resault1 = getNumber(conditions[i].numbers[0]) / getNumber(conditions[i].numbers[1]);
+                        int resault2 = getNumber(conditions[i].numbers[1]) / getNumber(conditions[i].numbers[0]);
+
+                        if (resault1 != conditions[i].answer && resault2 != conditions[i].answer)
+                        {
+                            Console.WriteLine("Condition " + i + " invalid");
+                            return false;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Condition " + i + " valid");
+                        }
+                    }
+                    else if(conditions[i].operation == '=')
+                    {
+                        int resault = getNumber(conditions[i].numbers[0]);
+
+                        if(resault != conditions[i].answer)
+                        {
+                            Console.WriteLine("Condition " + i + " invalid");
+                            return false;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Condition " + i + " valid");
+                        }
+                    }
                 }
             }
             return true;
@@ -101,31 +161,65 @@ namespace Soduko
 
             return matrix[y, x];
         }
+        #region Generate
         void GenerateMatrix()
         {
-            matrix = new int[n, n];
+            int index = 0;
 
-            for (int i = 0; i < n; i++)
+            while(index < n * n)
             {
-                for (int j = 0; j < n; j++)
+                for (int i = index + 1; i < n * n; i++)
                 {
-                    if (matrix[i, j] == 0)
-                    {
-                        int num = GenerateNumber(i, j);
+                    backTrancker[i] = 0;
+                }
 
-                        if (num != 0)
+                int x = index % n;
+                int y = index / n;
+
+                if (matrix[y, x] == 0)
+                {
+                    int number = GenerateNumber(y, x, backTrancker[index]);
+                    Console.WriteLine(index);
+
+                    if (number == 0)
+                    {
+                        index--;
+                        //backTrancker[index]++;
+
+                        matrix[index / n, index % n] = 0;
+                    }
+                    else
+                    {
+                        if (validateMatrix())
                         {
-                            matrix[i, j] = num;
+                            matrix[y, x] = number;
+                            backTrancker[index]++;
+                            index++;
                         }
                         else
                         {
-                            GenerateMatrix();
+                            index--;
+                            //backTrancker[index]++;
+
+                            matrix[index / n, index % n] = 0;
                         }
                     }
                 }
+                else
+                {
+                    backTrancker[index]++;
+                    index++;
+                }
+                ShowMatrix();
+                for(int i = 0; i < n * n; i++)
+                {
+                    Console.Write(" " + backTrancker[i]);
+                }
+                Console.Write("\n");
+                //Console.ReadKey();
             }
         }
-        int GenerateNumber(int i, int j)
+        int GenerateNumber(int i, int j, int p)
         {
             List<int> availableNumberR = new List<int>();
             List<int> availableNumberC = new List<int>();
@@ -161,19 +255,15 @@ namespace Soduko
             {
                 possibleNumbersR.Remove(availableNumberR[k]);
             }
-
             List<int> possibleNumbers = possibleNumbersR.FindAll(x => possibleNumbersC.Contains(x));
 
-            var random = new Random();
-            int index = random.Next(possibleNumbers.Count);
-
-            if (possibleNumbers.Count == 0)
+            if (possibleNumbers.Count <= p)
             {
                 return 0;
             }
-
-            return possibleNumbers[index];
+            return possibleNumbers[p];
         }
+        #endregion
         #region StringToCondition
         Condition conditionFromString(string userInput)
         {
@@ -253,6 +343,7 @@ namespace Soduko
             else return 9;
         }
         #endregion
+        #region Debug
         void intToVector(int index)
         {
             index++;
@@ -271,6 +362,7 @@ namespace Soduko
                 Console.Write("\n");
             }
         }
+        #endregion
     }
     class Condition
     {
