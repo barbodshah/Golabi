@@ -226,7 +226,7 @@ namespace Soduko
                     Console.Write(" " + backTrancker[i]);
                 }
                 Console.Write("\n");
-                Console.ReadKey();
+                //Console.ReadKey();
             }
         }
         int GenerateNumber(int i, int j, int p)
