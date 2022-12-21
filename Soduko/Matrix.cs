@@ -47,6 +47,8 @@ namespace Soduko
             Console.WriteLine("Got Conditions");
 
             GenerateMatrix();
+
+            Console.Write("\n \nFinal Matrix __________________\n");
             ShowMatrix();
 
             Console.ReadKey();
